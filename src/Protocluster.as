@@ -18,16 +18,8 @@ public class Protocluster extends Sprite {
 
     public function Protocluster() {
 
-//        var test1:Sprite = new Sprite();
-//        var test2:Sprite = new Sprite();
-//        test2.addChild(test1);
-//        this.addChild(test2);
-        //playerProtostar = new Protostar(0,0,50,0);
-        //addChild(playerProtostar);
 
         currentGalaxy = new Protogalaxy();
-        //currentGalaxy.startProtogalaxy();
-        //stage.addEventListener(MouseEvent.MOUSE_DOWN, mouseDownHandler);
 
         addChild(currentGalaxy);
     }
