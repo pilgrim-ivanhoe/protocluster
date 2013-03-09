@@ -13,15 +13,14 @@ public class Protocluster extends Sprite {
     public var framesNumber:Number = 0;
     public var fps:TextField = new TextField();
 
-   // var playerProtostar:Protostar;
-
-
     public function Protocluster() {
 
 
         currentGalaxy = new Protogalaxy();
 
         addChild(currentGalaxy);
+
+        fpsCounter();
     }
 
     // Счетчик FPS

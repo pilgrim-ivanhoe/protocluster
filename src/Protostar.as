@@ -1,5 +1,6 @@
 package {
 import flash.display.*;
+import flash.geom.ColorTransform;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 
@@ -39,18 +40,7 @@ public class Protostar extends Sprite {
         addChild(body);
     }
 
-    public function move ( environmentalResistanceCoefficient:Number, timeCorrection :Number){
-
-        //accelerationModulus ;
-
-        // (velocityModulus > 0){
-
-            //body.x += velocityModulus * xNormalizedVelocityComponent;
-            //body.y += velocityModulus * yNormalizedVelocityComponent;
-
-
-           // velocityModulus -= environmentalResistanceCoefficient;
-        //}
+    public function move (environmentalResistanceCoefficient:Number, timeCorrection :Number){
 
         xVelocityComponent *= environmentalResistanceCoefficient;
         yVelocityComponent *= environmentalResistanceCoefficient;
@@ -60,7 +50,6 @@ public class Protostar extends Sprite {
 
         body.x += xVelocityComponent * timeCorrection ;
         body.y += yVelocityComponent * timeCorrection ;
-
 
     }
 
@@ -72,25 +61,13 @@ public class Protostar extends Sprite {
         // определить угол
         var cursorAngle:Number = Math.atan2(dy,dx);
 
-        //angle = cursorAngle;
-        //var cursorDegrees:Number = 360*(cursorAngle/(2*Math.PI));
-
-        //private var xNormalizedAccelerationComponent:Number;
-        //private var yNormalizedAccelerationComponent:Number;
-
         var xNormalizedAccelerationComponent:Number = Math.cos(cursorAngle);
         var yNormalizedAccelerationComponent:Number = Math.sin(cursorAngle);
-        //trace (xNormalizedAccelerationComponent, yNormalizedAccelerationComponent);
 
         var correction:Number = 500/radius;
 
         xVelocityComponent += xNormalizedAccelerationComponent*correction;
-
         yVelocityComponent += yNormalizedAccelerationComponent*correction;
-
-        // Модуль ускорения
-        //private var accelerationModulus:Number;
-
 
     }
 
@@ -102,6 +79,7 @@ public class Protostar extends Sprite {
     // Увеличить площадь объекта на deltaSquare
     public function changeSquare( deltaSquare:Number) {
         radius = Math.sqrt((square() + deltaSquare)/Math.PI);
+        //redraw( 0x00FF00 );
     }
 
     // Уменьшить радиус на deltaRadius и
@@ -109,15 +87,40 @@ public class Protostar extends Sprite {
     public function changeRadius( deltaRadius: Number): Number {
         var oldSquare:Number = square();
         radius -= deltaRadius;
+
         return oldSquare - square();
+
     }
 
 
     // Перерисовать
-    public function redraw( color:uint ){
+    public function redraw( rgbColor1:Vector.<uint>,
+                            rgbColorMiddle:Vector.<uint>,
+                            rgbColor2:Vector.<uint>,
+                            minRadius:Number,
+                            playerRadius:Number,
+                            maxRadius:Number ){
+        //public function redraw( rgbColor:Vector.<uint> ){
         body.graphics.clear();
-        body.graphics.beginFill( color , 1);
-        body.graphics.drawCircle(0,0,radius);
+        body.graphics.beginFill( 0x000000 , 1 );
+        body.graphics.drawCircle( 0, 0, radius );
+
+        var normalized:Number;
+        if (minRadius==maxRadius) normalized=0.5;
+        else normalized = ( radius - minRadius ) / ( maxRadius - minRadius );
+
+
+        var rgbColor:Vector.<uint> = new <uint> [
+            uint(normalized * (rgbColor2[0] - rgbColor1[0] ) + rgbColor1[0]),
+            uint(normalized * (rgbColor2[1] - rgbColor1[1] ) + rgbColor1[1]),
+            uint(normalized * (rgbColor2[2] - rgbColor1[2] ) + rgbColor1[2])
+        ];
+
+
+        //var rOffset:Number = transform.colorTransform.redOffset + 1;
+        //var bOffset:Number = transform.colorTransform.redOffset - 1;
+        this.transform.colorTransform = new ColorTransform(0,0,0,1, rgbColor[0], rgbColor[1], rgbColor[2], 0);
+
     }
 
     // Получение центра
@@ -127,7 +130,7 @@ public class Protostar extends Sprite {
 
     // Проверка столкновений со стенками
     public function collisionEdges( edges: Rectangle ) {
-        trace (  body.y - radius );
+
         if ( body.y - radius < edges.top ) {
             yVelocityComponent*=-1; // изменение направления
             body.y = 2 * edges.top - body.y + 2 * radius ; // расчет моментального отражения
@@ -170,8 +173,10 @@ public class Protostar extends Sprite {
             if ( radius <= 0.0){
              return 1; // текущий уничтожен
             }
+
+            return 0;
         }
-        return 0; // ничего не произошло
+        return -1; // ничего не произошло
     }
 
     // Возвращает площадь

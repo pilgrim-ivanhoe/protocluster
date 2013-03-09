@@ -20,9 +20,12 @@ public class Protogalaxy extends Sprite  {
     private var playerProtostar:Protostar;
     private var area: Shape;
 
-    private var lastTime:int; // remember the last frame's time
+    private var rgbColor1:Vector.<uint>;
+    private var rgbColor2:Vector.<uint>;
+    private var rgbColorPlayer:Vector.<uint>;
+    private var rgbColorMiddle:Vector.<uint>;
 
-    private var playerColor:ColorTransform
+    private var lastTime:int; // remember the last frame's time
 
     public function Protogalaxy() {
 
@@ -32,6 +35,13 @@ public class Protogalaxy extends Sprite  {
         area.graphics.drawRect(0,0,400,200);
 
         addChild(area);
+
+        rgbColor2 = new <uint>[255,0,0];
+        rgbColor1 = new <uint>[0,0,255];
+        rgbColorPlayer = new <uint>[255,0,0];
+        rgbColorMiddle = new <uint>[ Math.abs( rgbColor1[0] - rgbColor2[0]) / 2,
+            Math.abs( rgbColor1[1] - rgbColor2[1]) / 2,
+            Math.abs( rgbColor1[2] - rgbColor2[2]) / 2];
 
        // var body: Shape = new Shape();
 
@@ -43,7 +53,7 @@ public class Protogalaxy extends Sprite  {
         addChild(playerProtostar);
         var a;
         for(var i:uint = 2; i < 10; i++) {
-            var a:Protostar = new ProtostarEnemy(i*50, i*50, 10, 0, 10);
+            var a:Protostar = new ProtostarEnemy(i*50, i*50, 10, 0, i*2);
 //            var a:Protostar = new Protostar(Math.random()*550,
 //                    Math.random()*400, getRandomSpeed(),
 //                    getRandomSpeed());
@@ -65,7 +75,7 @@ public class Protogalaxy extends Sprite  {
 
         for (var i:int = 1; i < numChildren; i++) {
 
-            Protostar(getChildAt(i)).move( 0.95, timePassed / 1000 );
+            Protostar(getChildAt(i)).move(0.95, timePassed / 1000 );
 
             Protostar(getChildAt(i)).collisionEdges(new Rectangle(0,0,400,200));
         }
@@ -86,29 +96,30 @@ public class Protogalaxy extends Sprite  {
                         j--;
                     }
                 }
-
             }
         }
 
         if (eventHappened){
 
-            var maxRadius:Number = 0;
-            var minRadius:Number = Protostar(getChildAt(1)).getRadius();
+            var playerRadius:Number = Protostar(getChildAt(1)).getRadius();
 
-            for (var i:int = 2; i < numChildren; i++) {
+            var minRadius:Number = playerRadius;
+            var maxRadius:Number = 0;
+
+            for (var i:int = 1; i < numChildren; i++) {
                 if( Protostar(getChildAt(i)).getRadius() < minRadius )
                     minRadius = Protostar(getChildAt(i)).getRadius();
                 else if( Protostar(getChildAt(i)).getRadius() > maxRadius )
                     maxRadius = Protostar(getChildAt(i)).getRadius();
             }
+            //(maxRadius - minRadius) ;
+            //maxRadius -  playerRadius;
 
             for (var i:int = 1; i < numChildren; i++) {
-                var red:uint = 0x110000;
-                var green:uint =0x001100;
-                Protostar(getChildAt(i)).redraw( red+green );
+
+                Protostar(getChildAt(i)).redraw( rgbColor1, rgbColorMiddle, rgbColor2, minRadius, playerRadius, maxRadius );
             }
         }
-
     }
 
 
