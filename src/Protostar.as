@@ -100,15 +100,17 @@ public class Protostar extends Sprite {
                             minRadius:Number,
                             playerRadius:Number,
                             maxRadius:Number ){
-        //public function redraw( rgbColor:Vector.<uint> ){
+
         body.graphics.clear();
         body.graphics.beginFill( 0x000000 , 1 );
         body.graphics.drawCircle( 0, 0, radius );
 
         var normalized:Number;
-        if (minRadius==maxRadius) normalized=0.5;
-        else normalized = ( radius - minRadius ) / ( maxRadius - minRadius );
-
+        if ( minRadius == maxRadius ) {
+            normalized = 0.5;
+        } else {
+            normalized = ( radius - minRadius ) / ( maxRadius - minRadius );
+        }
 
         var rgbColor:Vector.<uint> = new <uint> [
             uint(normalized * (rgbColor2[0] - rgbColor1[0] ) + rgbColor1[0]),
