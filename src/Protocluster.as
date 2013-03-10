@@ -5,6 +5,9 @@ import flash.events.Event;
 import flash.utils.getTimer;
 import flash.text.TextField;
 
+// Задание размера поля
+[SWF(width="800", height="600", frameRate="48", backgroundColor="#FFFFFF")]
+
 public class Protocluster extends Sprite {
 
     var currentGalaxy: Protogalaxy
@@ -14,63 +17,7 @@ public class Protocluster extends Sprite {
 
     public function Protocluster() {
 
-        var myObj:Object = new Object();
-        myObj.user = new Object();
-        myObj.enemy = new Object();
-        myObj.user.color = [0,255,255];
-        myObj.enemy.color1 = [255,0,0];
-        myObj.enemy.color2 = [0,255,0];
-
-//        myObj.enemy = new Object();
-//        myObj.mycolor = 0xff0000;
-//        myObj.mytext = "мой текст";
-        /*
-         преобразуем ассоциативный массив в JSON-формат
-         */
-        //var json:String = "{\"user\": {"color": [r, g, b]}, enemy: {color1: [r, g, b], color2: [r, g, b]}}";
-        //var json:String = "{\"user\": {"color": [r, g, b]}, "enemy": {"color1": [r, g, b], "color2": [r, g, b]}}";
-        //var json:String = "{\"user\": [r, g, b]}";
-        var json:String = JSON.stringify(myObj);
-        // {"mywidth":300,"mycolor":16711680,"mytext":"РјРѕР№ С‚РµРєСЃС‚","myheight":200}
-        /*
-         выводим результат
-         */
-        trace("JSON: " + json)
-        /*
-         превращаем JSON-строку в ассоциативный массив
-         */
-        var obj:Object = JSON.parse(json);
-        /*
-         с помощью цикла for in перебираем массив, выводя имена свойств и их значения
-         */
-        for (var prop:String in obj) {
-            trace("Prop: " + prop + " Value: " + obj[prop]) ;
-        }
-
-        var json_in = JSON.parse(json, function(k,v) {
-                    if ("user" in v) { // special marker tag from stringify() replacer code
-                        // Retrieve the original object based on the ID stored in the stringify() replacer function.
-                        trace( v["user"] );
-                        var contents = v["user"];
-                        for (var i in contents) {
-                            // Reviving JSONGenericDictExample objects from string
-                            // identifiers is also special;
-                            // see JSONGenericDictExample constructor and
-                            // JSONGenericDictExample's revive() method.
-                            trace( i + " " + contents[i] );
-                        }
-                    }
-                    if ("enemy" in v){
-                        var contents = v["enemy"];
-                        for (var i in contents) {
-                            trace( contents[i] );
-                        }
-                    }
-                    return v;
-                }
-        );
-
-        currentGalaxy = new Protogalaxy();
+        currentGalaxy = new Protogalaxy( stage.stageWidth, stage.stageHeight);
 
         addChild(currentGalaxy);
 

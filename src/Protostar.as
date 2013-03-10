@@ -1,6 +1,5 @@
 package {
 import flash.display.*;
-import flash.geom.ColorTransform;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 
@@ -17,15 +16,15 @@ public class Protostar extends Sprite {
     private var xNormalizedVelocityComponent:Number;
     private var yNormalizedVelocityComponent:Number;
 
-    private var xVelocityComponent:Number;
-    private var yVelocityComponent:Number;
+    protected var xVelocityComponent:Number;
+    protected var yVelocityComponent:Number;
 
     protected var body: Shape;
 
     public function Protostar( x,y,dx,dy,radius ) {
 
         this.radius = radius;
-        //velocityModulus = 5.0;
+
         xVelocityComponent = dx;
         yVelocityComponent = dy;
 
@@ -53,23 +52,7 @@ public class Protostar extends Sprite {
 
     }
 
-    public function rotateToPointer ( pointerX:Number,  pointerY:Number){
 
-        var dx:Number = pointerX - body.x;
-        var dy:Number = pointerY - body.y;
-
-        // определить угол
-        var cursorAngle:Number = Math.atan2(dy,dx);
-
-        var xNormalizedAccelerationComponent:Number = Math.cos(cursorAngle);
-        var yNormalizedAccelerationComponent:Number = Math.sin(cursorAngle);
-
-        var correction:Number = 500/radius;
-
-        xVelocityComponent += xNormalizedAccelerationComponent*correction;
-        yVelocityComponent += yNormalizedAccelerationComponent*correction;
-
-    }
 
 
     public function getRadius() :Number {
@@ -78,52 +61,21 @@ public class Protostar extends Sprite {
 
     // Увеличить площадь объекта на deltaSquare
     public function changeSquare( deltaSquare:Number) {
-        radius = Math.sqrt((square() + deltaSquare)/Math.PI);
+        radius = Math.sqrt((getSquare() + deltaSquare)/Math.PI);
         //redraw( 0x00FF00 );
     }
 
     // Уменьшить радиус на deltaRadius и
     // получить площадь, на которую уменьшился объект
     public function changeRadius( deltaRadius: Number): Number {
-        var oldSquare:Number = square();
+        var oldSquare:Number = getSquare();
         radius -= deltaRadius;
 
-        return oldSquare - square();
+        return oldSquare - getSquare();
 
     }
 
 
-    // Перерисовать
-    public function redraw( rgbColor1:Vector.<uint>,
-                            rgbColorMiddle:Vector.<uint>,
-                            rgbColor2:Vector.<uint>,
-                            minRadius:Number,
-                            playerRadius:Number,
-                            maxRadius:Number ){
-
-        body.graphics.clear();
-        body.graphics.beginFill( 0x000000 , 1 );
-        body.graphics.drawCircle( 0, 0, radius );
-
-        var normalized:Number;
-        if ( minRadius == maxRadius ) {
-            normalized = 0.5;
-        } else {
-            normalized = ( radius - minRadius ) / ( maxRadius - minRadius );
-        }
-
-        var rgbColor:Vector.<uint> = new <uint> [
-            uint(normalized * (rgbColor2[0] - rgbColor1[0] ) + rgbColor1[0]),
-            uint(normalized * (rgbColor2[1] - rgbColor1[1] ) + rgbColor1[1]),
-            uint(normalized * (rgbColor2[2] - rgbColor1[2] ) + rgbColor1[2])
-        ];
-
-
-        //var rOffset:Number = transform.colorTransform.redOffset + 1;
-        //var bOffset:Number = transform.colorTransform.redOffset - 1;
-        this.transform.colorTransform = new ColorTransform(0,0,0,1, rgbColor[0], rgbColor[1], rgbColor[2], 0);
-
-    }
 
     // Получение центра
     public function getCenter() :Point {
@@ -155,8 +107,8 @@ public class Protostar extends Sprite {
     }
 
 
-    // Проверка соприкосновений
-    public function collision( another: Protostar ) :int {
+    // Проверка поглощений
+    public function absorption( another: Protostar ) :int {
         // Расстояние между центрами
         var distance:Number = Point.distance( getCenter(), another.getCenter());
         var radiusSum:Number = radius + another.getRadius();
@@ -171,18 +123,16 @@ public class Protostar extends Sprite {
             if ( another.getRadius() <= 0.0){
                return 2;  // 2ой уничтожен
             }
-
             if ( radius <= 0.0){
              return 1; // текущий уничтожен
             }
-
             return 0;
         }
         return -1; // ничего не произошло
     }
 
     // Возвращает площадь
-    public function square():Number{
+    public function getSquare():Number{
         return Math.PI * radius * radius;
     }
 
