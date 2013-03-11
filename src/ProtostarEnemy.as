@@ -24,7 +24,7 @@ public class ProtostarEnemy extends Protostar {
 
     }
 
-    public function runAwayFrom ( largerProtostar: Protostar){
+    public function runAwayFrom ( largerProtostar: Protostar):void {
 
         var dx:Number = largerProtostar.getCenter().x - body.x;
         var dy:Number = largerProtostar.getCenter().y - body.y;
@@ -39,7 +39,7 @@ public class ProtostarEnemy extends Protostar {
 
         var xNormalizedAccelerationComponent:Number = Math.cos(awayAngle);
         var yNormalizedAccelerationComponent:Number = Math.sin(awayAngle);
-;
+
         xVelocityComponent -= xNormalizedAccelerationComponent* largerProtostar.getRadius();
         yVelocityComponent -= yNormalizedAccelerationComponent* largerProtostar.getRadius();
 

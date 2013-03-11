@@ -12,21 +12,29 @@ import flash.events.MouseEvent;
 import flash.events.Event;
 import flash.geom.ColorTransform;
 import flash.geom.Rectangle;
+import flash.text.TextFormat;
 import flash.utils.getTimer;
 import flash.display.*;
 import flash.geom.Point;
+import flash.text.TextField;
+
+import flash.events.Event;
+import flash.media.Sound;
+import flash.net.URLRequest;
+
+
 
 public class Protogalaxy extends Sprite  {
 
     private var playerProtostar:ProtostarPlayer;
     private var bounds: Rectangle;
     private var config:Config;
-    private var firstNonPlayerIndex:uint;
+    private var firstEnemyIndex:uint;
     private var lastTime:int; // remember the last frame's time
 
-    public function Protogalaxy( w:int, h:int ) {
+    public function Protogalaxy( w:int, h:int, config:Config ) {
 
-        config = new Config();
+        this.config = config;
 
         bounds = new Rectangle(0,0, w, h);
 
@@ -41,39 +49,71 @@ public class Protogalaxy extends Sprite  {
         )
         addChild(background);
 
-
-
-//        rgbColorMiddle = new <uint>[ Math.abs( rgbColor1[0] - rgbColor2[0]) / 2,
-//            Math.abs( rgbColor1[1] - rgbColor2[1]) / 2,
-//            Math.abs( rgbColor1[2] - rgbColor2[2]) / 2];
-
-       // var body: Shape = new Shape();
-
-       // body.graphics.beginFill(0xFF0000, 1);
-       // body.graphics.drawCircle(0,0,200);
-       // addChild(body);
-
-        playerProtostar = new ProtostarPlayer( bounds.x / 2, bounds.y / 2, 0,0, 30 );
+        firstEnemyIndex = numChildren;
+        playerProtostar = new ProtostarPlayer( bounds.width / 2, bounds.height / 2, 0, 0, 0 );
         addChild(playerProtostar);
-        firstNonPlayerIndex = numChildren;
-        for(var i:uint = firstNonPlayerIndex; i < config.enemies; i++) {
-        //var a:Protostar = new ProtostarEnemy(i*50, i*50, 10, 0, i*1);
-            var a:Protostar = new ProtostarEnemy(
-                    Math.random()*bounds.width,
-                    Math.random()*bounds.height,
-                    getRandomSpeed(),
-                    getRandomSpeed(),
-                    Math.random()*40);
+
+        firstEnemyIndex = numChildren;
+
+        fillGalaxyWIthEnemies();
+//        for(var i:uint = firstEnemyIndex; i < config.enemies; i++) {
+//            //var a:Protostar = new ProtostarEnemy(i*50, i*50, 10, 0, i*1);
+//            var a:Protostar = new ProtostarEnemy(
+//                    Math.random()*bounds.width,
+//                    Math.random()*bounds.height,
+//                    getRandomVelocity(0,10),
+//                    getRandomVelocity(0,10),
+//                    Math.random()*40);
+//
+//            addChild(a);
+//        }
+
+    }
+
+    private function fillGalaxyWIthEnemies(){
+
+        var enemiesSmaller:uint = Math.round(config.enemies / 2);
+
+        //var maxProtostarSquare: Number = bounds.width * bounds.height / ( 2 * (config.enemies + 1)) ;
+        //var minProtostarSquare: Number = bounds.width * bounds.height / ( 3 * (config.enemies + 1));
+        var maxProtostarSquare: Number = bounds.width * bounds.height / ( 5 * (config.enemies + 1)) ;
+        var minProtostarSquare: Number = bounds.width * bounds.height / ( 7 * (config.enemies + 1));
+
+        playerProtostar.changeSquare( ( maxProtostarSquare - minProtostarSquare) / 2 + minProtostarSquare );
+
+        for(var i:uint = 0; i < config.enemies; i++) {
+
+            var notDone:Boolean = true;
+            while ( notDone ){
+
+                if ( i < enemiesSmaller ) {
+                    var square:Number = Math.random()*( playerProtostar.getSquare() - minProtostarSquare ) + minProtostarSquare;
+                } else {
+                    var square:Number = Math.random()*( maxProtostarSquare - playerProtostar.getSquare() ) + playerProtostar.getSquare();
+                }
+
+                var tempX: Number = Math.random()*bounds.width;
+                var tempY: Number = Math.random()*bounds.height;
+
+                var tempDX: Number = getRandomVelocity( 0, 10 );
+                var tempDY: Number = getRandomVelocity( 0, 10 );
+
+                var a:ProtostarEnemy = new ProtostarEnemy( tempX, tempY , tempDX, tempDY, 0 );
+                a.changeSquare(square);
+
+                notDone = false;
+                for (var j:int = 1; j < numChildren; j++) {
+                    if ( a.intersectionValue( Protostar(getChildAt(j))) > 0 ) {
+                        notDone = true;
+                    }
+                }
+
+            }
 
             addChild(a);
         }
-
-        addEventListener(Event.ENTER_FRAME, motion);
-        addEventListener(MouseEvent.MOUSE_DOWN, mouseDownHandler);
-        addEventListener(MouseEvent.MOUSE_OUT, mouseUpHandler);
-
-        lastTime = getTimer();
     }
+
 
     private function motion (e:Event):void {
 
@@ -82,18 +122,14 @@ public class Protogalaxy extends Sprite  {
         lastTime += timePassed;
 
         // Убегать от тех кто больше
-//        for(var i:int = firstNonPlayerIndex; i < numChildren; i++ ){
-//            for (var j:int = 1 ; j < numChildren; j++ ) {
-//
-//                if ( i >= firstNonPlayerIndex &&
-//                        Point.distance( Protostar(getChildAt(i)).getCenter(),
-//                                Protostar(getChildAt(1)).getCenter()) <
-//                                2 * ( Protostar(getChildAt(1)).getRadius() +
-//                                        Protostar(getChildAt(i)).getRadius())) {
-//                    ProtostarEnemy(getChildAt(i)).runAwayFrom( Protostar(getChildAt(j)) );
-//                }
-//            }
-//        }
+        for(var i:int = firstEnemyIndex; i < numChildren; i++ ){
+            //for (var j:int = 1 ; j < numChildren; j++ ) {
+
+                if ( playerProtostar.intersectionValue( Protostar(getChildAt(i)) ) > 0) {
+                    ProtostarEnemy(getChildAt(i)).runAwayFrom( playerProtostar );
+                }
+            //}
+        }
 
         // Передвижения
         for (var i:int = 1; i < numChildren; i++) {
@@ -107,15 +143,18 @@ public class Protogalaxy extends Sprite  {
         var eventHappened: Boolean = false ; // Что-то случилось
 
         // Проверка и обработка поглащений
+
         for(var i:int = 1; i < numChildren; i++ ){
             for (var j:int = i+1 ; j < numChildren; j++ ) {
                 var state:int = Protostar(getChildAt(i)).absorption( Protostar(getChildAt(j)) );
                 if ( state > -1 ) {
                     if ( state == 1 ) {
                         removeChildAt(i);
+                        if ( i == 1 ) stopProtogalaxy("Defeat!");
                         i--;
                     } else if ( state == 2 ) {
                         removeChildAt(j);
+                        if ( j == 1 ) stopProtogalaxy("Defeat!");
                         j--;
                     }
                     eventHappened = true;
@@ -123,8 +162,8 @@ public class Protogalaxy extends Sprite  {
             }
         }
 
-        if ( eventHappened ){
-            var playerRadius:Number = Protostar(getChildAt(1)).getRadius();
+        //if ( eventHappened ){
+            var playerRadius:Number = playerProtostar.getRadius();
 
             var minRadius:Number = playerRadius;
             var maxRadius:Number = 0;
@@ -139,7 +178,7 @@ public class Protogalaxy extends Sprite  {
             // Перекраска
             var totalEnemySquare:Number = 0;
 
-            playerProtostar.redraw( config.rgbColorPlayer);
+            playerProtostar.redraw( config.rgbColorPlayer );
 
             for (var i:int = 2; i < numChildren; i++) {
                 var protostarEnemy:ProtostarEnemy = ProtostarEnemy(getChildAt(i));
@@ -154,17 +193,52 @@ public class Protogalaxy extends Sprite  {
                 }
                 totalEnemySquare += protostarEnemy.getSquare();
 
-            }
+            //}
         }
 
         // Проверка победы
         if ( totalEnemySquare <= playerProtostar.getSquare())
         {
-            trace("Gone!");
-            removeEventListener(Event.ENTER_FRAME, motion);
+            stopProtogalaxy("Victory!");
         }
 
 
+    }
+
+
+
+
+    public function startProtogalaxy(){
+
+        addEventListener(Event.ENTER_FRAME, motion);
+        addEventListener(MouseEvent.MOUSE_DOWN, mouseDownHandler);
+        addEventListener(MouseEvent.MOUSE_OUT, mouseUpHandler);
+
+        lastTime = getTimer();
+    }
+
+    public function stopProtogalaxy( text:String ){
+
+        var victorySprite: Sprite = new Sprite();
+
+        var victoryText:TextField = new TextField();
+        victoryText.text = text;
+
+        var format:TextFormat = new TextFormat();
+        format.color = 0xFF0000;
+        format.font = "Myriad Pro";
+        format.size = 20;
+
+        victoryText.setTextFormat( format );
+        victorySprite.addChild(victoryText);
+
+        victorySprite.x = bounds.width / 2 - 100;//- victoryText.getBounds(this).width / 2;
+        victorySprite.y = bounds.height / 2 - 25;// - victoryText.getBounds(this).height / 2;
+        parent.addChild(victorySprite);
+
+        removeEventListener(Event.ENTER_FRAME, motion);
+        removeEventListener(MouseEvent.MOUSE_DOWN, mouseDownHandler);
+        removeEventListener(MouseEvent.MOUSE_OUT, mouseUpHandler);
     }
 
     private function rotating (e:Event):void {
@@ -185,10 +259,13 @@ public class Protogalaxy extends Sprite  {
 
 
     // get a speed from 70-100, positive or negative
-    public function getRandomSpeed() {
-        var speed:Number = Math.random()*70+30;
-        if (Math.random() > .5) speed *= -1;
-        return speed;
+    public function getRandomVelocity( maxVelocity:Number, minVelocity:Number ) {
+        if ( maxVelocity < minVelocity ) {
+            return maxVelocity;
+        }
+        var velocity:Number = Math.random()*( maxVelocity - minVelocity ) + minVelocity;
+        if (Math.random() > .5) velocity *= -1;
+        return velocity;
     }
 }
 }

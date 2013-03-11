@@ -35,7 +35,7 @@ public class ProtostarPlayer extends Protostar {
 
         body.graphics.clear();
         body.graphics.beginFill( 0x000000 , 1 );
-        body.graphics.drawCircle( 0, 0, radius );
+        body.graphics.drawCircle(0, 0, getRadius());
 
         this.transform.colorTransform = new ColorTransform(0,0,0,1, rgbColor[0], rgbColor[1], rgbColor[2], 0);
     }

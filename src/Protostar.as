@@ -5,11 +5,11 @@ import flash.geom.Rectangle;
 
 public class Protostar extends Sprite {
 
-    // Радиус скорости
-    public var radius:Number;
+    // Радиус
+    protected var radius:Number;
 
     // Модуль скорости
-    private var velocityModulus:Number;
+    //private var velocityModulus:Number;
 
     // Нормализованные x и y составляющие вектора скорости
     // Определяют текущее направление движения
@@ -51,9 +51,6 @@ public class Protostar extends Sprite {
         body.y += yVelocityComponent * timeCorrection ;
 
     }
-
-
-
 
     public function getRadius() :Number {
         return radius;
@@ -109,15 +106,12 @@ public class Protostar extends Sprite {
 
     // Проверка поглощений
     public function absorption( another: Protostar ) :int {
-        // Расстояние между центрами
-        var distance:Number = Point.distance( getCenter(), another.getCenter());
-        var radiusSum:Number = radius + another.getRadius();
-
-        if ( distance < radiusSum ) {
+        var inters:Number = intersectionValue( another );
+        if ( inters > 0 ) {
            if (radius >= another.radius){
-               changeSquare( another.changeRadius( radiusSum - distance ) );
+               changeSquare( another.changeRadius( inters ) );
            } else {
-               another.changeSquare( changeRadius( radiusSum - distance ) );
+               another.changeSquare( changeRadius( inters ) );
            }
 
             if ( another.getRadius() <= 0.0){
@@ -135,6 +129,16 @@ public class Protostar extends Sprite {
     public function getSquare():Number{
         return Math.PI * radius * radius;
     }
+
+    // Определяет на сколько пересеклись объекты
+    public function intersectionValue( anotherProtostar:Protostar ):Number{
+        // Расстояние между центрами
+        var distance:Number = Point.distance( getCenter(), anotherProtostar.getCenter());
+        var radiusSum:Number = radius + anotherProtostar.getRadius();
+
+        return radiusSum - distance;
+    }
+
 
 }
 
