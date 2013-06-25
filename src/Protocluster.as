@@ -46,10 +46,17 @@ public class Protocluster extends Sprite {
 
         fpsCounter();
 
-        var jsonURL:URLRequest = new URLRequest("config.json");
-        var jsonLoader:URLLoader = new URLLoader(jsonURL);
-        jsonLoader.addEventListener(Event.COMPLETE, configFileLoaded);
+//        var jsonURL:URLRequest = new URLRequest("config.json");
+//        var jsonLoader:URLLoader = new URLLoader(jsonURL);
+//        jsonLoader.addEventListener(Event.COMPLETE, configFileLoaded);
+        startWithoutConfig ();
+    }
 
+    private function startWithoutConfig(){
+
+        config = new Config( "{\"user\":{\"color\":[100,100,100]},\"enemy\":{\"color1\":[0,0,255],\"color2\":[255,0,0],\"count\":100},\"background\":[0,0,0]}" );
+
+        start ();
     }
 
     private function configFileLoaded(e:Event){

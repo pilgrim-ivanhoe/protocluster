@@ -8,9 +8,6 @@ public class Protostar extends Sprite {
     // Радиус
     protected var radius:Number;
 
-    // Модуль скорости
-    //private var velocityModulus:Number;
-
     // Нормализованные x и y составляющие вектора скорости
     // Определяют текущее направление движения
     private var xNormalizedVelocityComponent:Number;
@@ -59,7 +56,6 @@ public class Protostar extends Sprite {
     // Увеличить площадь объекта на deltaSquare
     public function changeSquare( deltaSquare:Number) {
         radius = Math.sqrt((getSquare() + deltaSquare)/Math.PI);
-        //redraw( 0x00FF00 );
     }
 
     // Уменьшить радиус на deltaRadius и
@@ -67,7 +63,6 @@ public class Protostar extends Sprite {
     public function changeRadius( deltaRadius: Number): Number {
         var oldSquare:Number = getSquare();
         radius -= deltaRadius;
-
         return oldSquare - getSquare();
 
     }
